@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: ./Dockerfile
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    env_file:
+      - ./db/.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/pg_logs:/pg_logs
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:ubuntu-5.2-latest
+    depends_on:
+      - db
+    ports:
+      - 10051:10051
+    env_file:
+      - ./zabbix/.env
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:ubuntu-5.2-latest
+    ports:
+      - 10050:10050
+
+  zabbix-frontend:
+    image: zabbix/zabbix-web-nginx-pgsql:ubuntu-5.2-latest
+    depends_on:
+      - db
+      - zabbix-server
+    env_file:
+      - ./zabbix/.env
+    ports:
+      - 80:8080

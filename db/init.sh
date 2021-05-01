@@ -1,0 +1,6 @@
+#!/bin/bash
+
+psql -c "
+    CREATE USER $ZABBIX_USER WITH PASSWORD '$ZABBIX_PASSWORD' INHERIT;
+    GRANT pg_monitor TO $ZABBIX_USER;
+"
